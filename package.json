@@ -7,12 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:push": "prisma db push",
+    "db:push": "npx prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:setup": "prisma db push && tsx prisma/seed.ts",
-    "postinstall": "prisma generate",
-    "setup": "prisma generate && prisma db push && tsx prisma/seed.ts",
-    "predev": "prisma generate && tsx scripts/ensure-db.ts",
+    "db:setup": "npx prisma db push && npx tsx prisma/seed.ts",
+    "postinstall": "npx prisma generate",
+    "setup": "npx prisma generate && npx prisma db push && npx tsx prisma/seed.ts",
+    "predev": "npx prisma generate && npx tsx scripts/ensure-db.ts",
     "db:ensure": "tsx scripts/ensure-db.ts"
   },
   "dependencies": {

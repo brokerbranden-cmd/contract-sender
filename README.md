@@ -94,3 +94,7 @@ public/contracts/  # Generated PDFs
 - Generated PDFs land in `public/contracts/` and are downloadable from deal detail.
 - Template placeholders use `{{fieldName}}` merge syntax.
 - This is a local MVP — no auth. Do not expose publicly without securing it.
+
+## First-time Windows setup
+
+Copy `.env.example` to `.env` (sets `DATABASE_URL` for SQLite), then `npm install && npm run setup && npm run dev`.
