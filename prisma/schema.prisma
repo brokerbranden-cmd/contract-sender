@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  address     String
+  city        String
+  state       String   @default("FL")
+  zip         String
+  mlsNumber   String?
+  listPrice   Float?
+  beds        Int?
+  baths       Float?
+  sqft        Int?
+  yearBuilt   Int?
+  propertyType String? @default("Single Family")
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deals       Deal[]
+}
+
+model Agent {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  brokerage String?
+  licenseNo String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deals     Deal[]
+}
+
+model Deal {
+  id            String     @id @default(cuid())
+  title         String
+  stage         String     @default("new")
+  offerPrice    Float?
+  earnestMoney  Float?
+  closingDays   Int?
+  inspectionDays Int?
+  financingType String?    @default("Cash")
+  contingencies String?
+  notes         String?
+  propertyId    String
+  property      Property   @relation(fields: [propertyId], references: [id])
+  agentId       String?
+  agent         Agent?     @relation(fields: [agentId], references: [id])
+  contracts     Contract[]
+  activities    Activity[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model ContractTemplate {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  body        String
+  isDefault   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  contracts   Contract[]
+}
+
+model Contract {
+  id          String           @id @default(cuid())
+  dealId      String
+  deal        Deal             @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  templateId  String?
+  template    ContractTemplate? @relation(fields: [templateId], references: [id])
+  filledData  String
+  status      String           @default("draft")
+  pdfPath     String?
+  sentAt      DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  dealId    String
+  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  meta      String?
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id              String   @id @default("default")
+  buyerName       String   @default("Prop Hunters LLC")
+  buyerEntity     String   @default("Prop Hunters LLC")
+  buyerAddress    String   @default("")
+  buyerCity       String   @default("")
+  buyerState      String   @default("FL")
+  buyerZip        String   @default("")
+  buyerEmail      String   @default("")
+  buyerPhone      String   @default("")
+  buyerSignatory  String   @default("Branden")
+  defaultEarnest  Float    @default(1000)
+  defaultClosingDays Int   @default(30)
+  defaultInspectionDays Int @default(10)
+  emailSubjectTpl String   @default("Offer on {{address}} — {{buyerName}}")
+  emailBodyTpl    String   @default("Hi {{agentName}},\n\nPlease find attached our offer on {{address}}.\n\nOffer Price: {{offerPrice}}\nClosing: {{closingDays}} days\n\nLooking forward to working with you.\n\nBest,\n{{buyerSignatory}}\n{{buyerName}}\n{{buyerPhone}}\n{{buyerEmail}}")
+  updatedAt       DateTime @updatedAt
+}
