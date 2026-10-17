@@ -13,7 +13,10 @@
     "postinstall": "npx prisma generate",
     "setup": "npx prisma generate && npx prisma db push && npx tsx prisma/seed.ts",
     "predev": "npx prisma generate && npx tsx scripts/ensure-db.ts",
-    "db:ensure": "tsx scripts/ensure-db.ts"
+    "db:ensure": "tsx scripts/ensure-db.ts",
+    "test": "tsx --test tests/units.test.ts",
+    "smoke": "tsx scripts/smoke-test.ts",
+    "test:all": "npm run test && npm run smoke"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -25,7 +28,8 @@
     "pdf-lib": "^1.17.1",
     "react": "^18",
     "react-dom": "^18",
-    "tailwind-merge": "^3.7.0"
+    "tailwind-merge": "^3.7.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -59,6 +59,7 @@ Seller / Seller's Agent Acknowledgment of Receipt: _____________________________
 async function main() {
   console.log("Seeding Prop Hunters investor CRM...");
 
+  await prisma.outboxItem.deleteMany();
   await prisma.activity.deleteMany();
   await prisma.contract.deleteMany();
   await prisma.deal.deleteMany();

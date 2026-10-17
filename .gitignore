@@ -39,3 +39,7 @@ next-env.d.ts
 prisma/dev.db
 prisma/dev.db-journal
 .env
+
+prisma/smoke-test.db*
+prisma/*.db
+prisma/*.db-journal
