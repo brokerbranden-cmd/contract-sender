@@ -21,6 +21,9 @@ type Settings = {
   defaultEarnest: number;
   defaultClosingDays: number;
   defaultInspectionDays: number;
+  dailySendCap: number;
+  duplicateGuardDays: number;
+  defaultOfferPct: number;
   emailSubjectTpl: string;
   emailBodyTpl: string;
 };
@@ -181,6 +184,48 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
+            <CardTitle>Bulk offers &amp; sending</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <Label>Default offer (% of list price)</Label>
+              <Input
+                type="number"
+                step="0.5"
+                value={form.defaultOfferPct}
+                onChange={(e) => set("defaultOfferPct", Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <Label>Daily send cap (emails/day)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={form.dailySendCap}
+                onChange={(e) => set("dailySendCap", Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <Label>Duplicate guard (days)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={form.duplicateGuardDays}
+                onChange={(e) =>
+                  set("duplicateGuardDays", Number(e.target.value))
+                }
+              />
+            </div>
+            <p className="text-xs text-slate-500 sm:col-span-3">
+              Offers are rounded to the nearest $1,000. The same property will
+              not be re-offered within the guard window (0 = off). The daily cap
+              limits Mark sent / batch export per calendar day.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>Email templates</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -202,7 +247,9 @@ export default function SettingsPage() {
             <p className="text-xs text-slate-500">
               Placeholders: {"{{address}}"}, {"{{agentName}}"}, {"{{offerPrice}}"},{" "}
               {"{{buyerName}}"}, {"{{buyerSignatory}}"}, {"{{buyerPhone}}"},{" "}
-              {"{{buyerEmail}}"}, {"{{closingDays}}"}
+              {"{{buyerEmail}}"}, {"{{closingDays}}"}. Bulk offers also accept
+              snake_case: {"{{offer_price}}"}, {"{{agent_first_name}}"},{" "}
+              {"{{list_price}}"}, {"{{mls_number}}"}, {"{{earnest_money}}"}
             </p>
           </CardContent>
         </Card>

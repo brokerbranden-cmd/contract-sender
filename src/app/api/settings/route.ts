@@ -42,6 +42,15 @@ function sanitize(body: Record<string, unknown>) {
     ...(body.defaultInspectionDays !== undefined && {
       defaultInspectionDays: num(body.defaultInspectionDays) ?? 10,
     }),
+    ...(body.dailySendCap !== undefined && {
+      dailySendCap: Math.max(0, Math.round(num(body.dailySendCap) ?? 25)),
+    }),
+    ...(body.duplicateGuardDays !== undefined && {
+      duplicateGuardDays: Math.max(0, Math.round(num(body.duplicateGuardDays) ?? 30)),
+    }),
+    ...(body.defaultOfferPct !== undefined && {
+      defaultOfferPct: num(body.defaultOfferPct) ?? 75,
+    }),
     ...(body.emailSubjectTpl != null && {
       emailSubjectTpl: String(body.emailSubjectTpl),
     }),
