@@ -39,6 +39,10 @@ model Property {
   showingInstructions String?
   listOfficeName      String?
   listOfficePhone     String?
+  // --- FAR/BAR contract fields (optional) ---
+  parcelId            String?
+  legalDescription    String?
+  sellerName          String?
   source              String?
   listAgentId         String?
   listAgent           Agent?    @relation("ListingAgent", fields: [listAgentId], references: [id])
@@ -81,6 +85,8 @@ model Deal {
   financingType  String?      @default("Cash")
   contingencies  String?
   notes          String?
+  // "auto" | "custom" | "farbar"; null = use template / settings default
+  contractType   String?
   propertyId     String
   property       Property     @relation(fields: [propertyId], references: [id])
   agentId        String?
@@ -100,6 +106,8 @@ model ContractTemplate {
   description String?
   body        String
   isDefault   Boolean    @default(false)
+  // "auto" (FAR/BAR when form file exists) | "custom" (built-in body) | "farbar"
+  contractType String    @default("auto")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   contracts   Contract[]
@@ -150,6 +158,20 @@ model Settings {
   dailySendCap          Int      @default(25)
   duplicateGuardDays    Int      @default(30)
   defaultOfferPct       Float    @default(75)
+  // FAR/BAR AS IS official form
+  defaultContractType       String @default("auto")
+  farbarFormPath            String @default("")
+  escrowAgentName           String @default("")
+  escrowAgentAddress        String @default("")
+  escrowAgentPhone          String @default("")
+  escrowAgentEmail          String @default("")
+  escrowAgentFax            String @default("")
+  depositDays               Int    @default(3)
+  acceptanceDays            Int    @default(3)
+  assignability             String @default("assign_released")
+  cooperatingSalesAssociate String @default("")
+  cooperatingBroker         String @default("")
+  farbarAdditionalTerms     String @default("")
   updatedAt             DateTime @updatedAt
 }
 

@@ -80,6 +80,8 @@ export type NormalizedListing = {
   state: string;
   zip: string;
   county: string;
+  parcelId: string;
+  legalDescription: string;
   area: string;
   subdivision: string;
   listPrice: number | null;
@@ -175,6 +177,8 @@ export function normalizeRow(
     state: (state || "FL").toUpperCase().slice(0, 2),
     zip,
     county: get("county"),
+    parcelId: get("parcelId"),
+    legalDescription: get("legalDescription"),
     area: get("area"),
     subdivision: get("subdivision"),
     listPrice: parseMoney(get("listPrice")),
@@ -405,6 +409,8 @@ async function doImport(
       ...(n.state && { state: n.state }),
       ...(n.zip && { zip: n.zip }),
       ...(n.county && { county: n.county }),
+      ...(n.parcelId && { parcelId: n.parcelId }),
+      ...(n.legalDescription && { legalDescription: n.legalDescription }),
       ...(n.area && { area: n.area }),
       ...(n.subdivision && { subdivision: n.subdivision }),
       ...(n.listPrice != null && { listPrice: n.listPrice }),

@@ -40,7 +40,9 @@ export type ImportFieldKey =
   | "agentEmail"
   | "agentPhone"
   | "officeName"
-  | "officePhone";
+  | "officePhone"
+  | "parcelId"
+  | "legalDescription";
 
 export type ImportField = {
   key: ImportFieldKey;
@@ -86,6 +88,8 @@ export const IMPORT_FIELDS: ImportField[] = [
   { key: "agentEmail", label: "List agent email", aliases: ["listagentemail", "listingagentemail", "agentemail", "listagentemailaddress", "agentemailaddress", "listagentemailaddr", "email", "listagentpreferredemail"] },
   { key: "agentPhone", label: "List agent phone", aliases: ["listagentphone", "listagentdirectworkphone", "listagentdirectphone", "listagentcellphone", "listagentofficephone", "listingagentphone", "agentphone", "agentcell", "agentdirectphone", "phone", "listagentpreferredphone", "listagentmobilephone"] },
   { key: "officeName", label: "List office name", aliases: ["listofficename", "listingofficename", "listofficeshortname", "officename", "brokerage", "brokeragename", "listbrokerage", "listingbrokerage", "office", "listoffice", "listingoffice"] },
+  { key: "parcelId", label: "Tax ID / Parcel #", aliases: ["parcelid", "parcelnumber", "parcel#", "parcel", "taxid", "taxid#", "folio", "folionumber", "folio#", "pin", "apn", "strap", "taxfolio"] },
+  { key: "legalDescription", label: "Legal description", aliases: ["legaldescription", "legaldesc", "legal", "taxlegaldescription", "legaldescriptionfull"] },
   { key: "officePhone", label: "List office phone", aliases: ["listofficephone", "listingofficephone", "officephone", "brokeragephone", "listofficeprimaryphone"] },
 ];
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { CONTRACT_TYPE_OPTIONS, useFarBarStatus } from "@/components/contract-type";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,6 +68,8 @@ export default function BulkOffersPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templateId, setTemplateId] = useState("");
+  const farbar = useFarBarStatus();
+  const [contractType, setContractType] = useState("auto");
   const [pct, setPct] = useState(75);
   const [earnest, setEarnest] = useState(1000);
   const [closing, setClosing] = useState(30);
@@ -193,6 +196,7 @@ export default function BulkOffersPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         templateId,
+        contractType,
         earnestMoney: earnest,
         closingDays: closing,
         inspectionDays: inspection,
@@ -310,6 +314,23 @@ export default function BulkOffersPage() {
                 </option>
               ))}
             </Select>
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Contract type</Label>
+            <Select value={contractType} onChange={(e) => setContractType(e.target.value)}>
+              {CONTRACT_TYPE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+            <p className="mt-1 text-xs text-slate-500">
+              {farbar == null
+                ? ""
+                : farbar.exists
+                  ? "FAR/BAR form found — Auto uses the official form."
+                  : "FAR/BAR form file missing — the built-in custom contract will be used (see Settings)."}
+            </p>
           </div>
           <div>
             <Label>Offer % of list price</Label>

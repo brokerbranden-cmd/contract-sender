@@ -1,0 +1,495 @@
+{
+ "form": "FloridaRealtors/FloridaBar-ASIS-7x Rev 2/26",
+ "pageSize": [
+  612,
+  792
+ ],
+ "units": "PDF points, origin bottom-left; text y = baseline; checkbox x/y = lower-left of box",
+ "fields": {
+  "seller": {
+   "type": "text",
+   "page": 1,
+   "x": 105,
+   "y": 695.5,
+   "maxWidth": 425,
+   "fontSize": 9
+  },
+  "buyer": {
+   "type": "text",
+   "page": 1,
+   "x": 75,
+   "y": 684,
+   "maxWidth": 454,
+   "fontSize": 9
+  },
+  "propertyAddress": {
+   "type": "text",
+   "page": 1,
+   "x": 201,
+   "y": 626.3,
+   "maxWidth": 374,
+   "fontSize": 9
+  },
+  "county": {
+   "type": "text",
+   "page": 1,
+   "x": 143,
+   "y": 614.8,
+   "maxWidth": 76,
+   "fontSize": 9
+  },
+  "taxId": {
+   "type": "text",
+   "page": 1,
+   "x": 381,
+   "y": 614.8,
+   "maxWidth": 194,
+   "fontSize": 9
+  },
+  "legalDescription": {
+   "type": "multiline",
+   "page": 1,
+   "fontSize": 9,
+   "lines": [
+    {
+     "x": 263,
+     "y": 603.4,
+     "maxWidth": 309
+    },
+    {
+     "x": 92,
+     "y": 592.1,
+     "maxWidth": 484
+    },
+    {
+     "x": 92,
+     "y": 580.6,
+     "maxWidth": 484
+    }
+   ]
+  },
+  "personalPropertyIncluded": {
+   "type": "multiline",
+   "page": 1,
+   "fontSize": 9,
+   "lines": [
+    {
+     "x": 366,
+     "y": 462.5,
+     "maxWidth": 210
+    },
+    {
+     "x": 92,
+     "y": 451.3,
+     "maxWidth": 482
+    }
+   ]
+  },
+  "personalPropertyExcluded": {
+   "type": "multiline",
+   "page": 1,
+   "fontSize": 9,
+   "lines": [
+    {
+     "x": 327,
+     "y": 428.3,
+     "maxWidth": 248
+    },
+    {
+     "x": 92,
+     "y": 417.5,
+     "maxWidth": 482
+    }
+   ]
+  },
+  "purchasePrice": {
+   "type": "text",
+   "page": 1,
+   "x": 508,
+   "y": 377.9,
+   "maxWidth": 67,
+   "fontSize": 9,
+   "align": "right"
+  },
+  "initialDeposit": {
+   "type": "text",
+   "page": 1,
+   "x": 508,
+   "y": 360.2,
+   "maxWidth": 67,
+   "fontSize": 9,
+   "align": "right"
+  },
+  "additionalDeposit": {
+   "type": "text",
+   "page": 1,
+   "x": 508,
+   "y": 256.9,
+   "maxWidth": 67,
+   "fontSize": 9,
+   "align": "right"
+  },
+  "loanAmount": {
+   "type": "text",
+   "page": 1,
+   "x": 508,
+   "y": 233.9,
+   "maxWidth": 67,
+   "fontSize": 9,
+   "align": "right"
+  },
+  "otherAmount": {
+   "type": "text",
+   "page": 1,
+   "x": 508,
+   "y": 216.2,
+   "maxWidth": 67,
+   "fontSize": 9,
+   "align": "right"
+  },
+  "balanceToClose": {
+   "type": "text",
+   "page": 1,
+   "x": 508,
+   "y": 193.6,
+   "maxWidth": 67,
+   "fontSize": 9,
+   "align": "right"
+  },
+  "depositAccompaniesOffer": {
+   "type": "checkbox",
+   "page": 1,
+   "x": 175,
+   "y": 335.2,
+   "size": 9.5
+  },
+  "depositWithinDays": {
+   "type": "checkbox",
+   "page": 1,
+   "x": 298.4,
+   "y": 335.2,
+   "size": 9.5
+  },
+  "depositDays": {
+   "type": "text",
+   "page": 1,
+   "x": 402,
+   "y": 337.2,
+   "maxWidth": 27,
+   "fontSize": 9,
+   "align": "center"
+  },
+  "escrowAgentName": {
+   "type": "text",
+   "page": 1,
+   "x": 188,
+   "y": 302.6,
+   "maxWidth": 310,
+   "fontSize": 9
+  },
+  "escrowAgentAddress": {
+   "type": "text",
+   "page": 1,
+   "x": 134,
+   "y": 290.9,
+   "maxWidth": 248,
+   "fontSize": 9
+  },
+  "escrowAgentPhone": {
+   "type": "text",
+   "page": 1,
+   "x": 419,
+   "y": 290.9,
+   "maxWidth": 81,
+   "fontSize": 9
+  },
+  "escrowAgentEmail": {
+   "type": "text",
+   "page": 1,
+   "x": 125,
+   "y": 279.6,
+   "maxWidth": 257,
+   "fontSize": 9
+  },
+  "escrowAgentFax": {
+   "type": "text",
+   "page": 1,
+   "x": 410,
+   "y": 279.6,
+   "maxWidth": 91,
+   "fontSize": 9
+  },
+  "additionalDepositDays": {
+   "type": "text",
+   "page": 1,
+   "x": 345,
+   "y": 268.1,
+   "maxWidth": 54,
+   "fontSize": 9,
+   "align": "center"
+  },
+  "otherDescription": {
+   "type": "text",
+   "page": 1,
+   "x": 122,
+   "y": 215.9,
+   "maxWidth": 325,
+   "fontSize": 9
+  },
+  "acceptanceDeadline": {
+   "type": "text",
+   "page": 1,
+   "x": 92,
+   "y": 155.4,
+   "maxWidth": 125,
+   "fontSize": 9
+  },
+  "closingDate": {
+   "type": "text",
+   "page": 2,
+   "x": 276,
+   "y": 730.7,
+   "maxWidth": 159,
+   "fontSize": 9,
+   "align": "center"
+  },
+  "assignReleased": {
+   "type": "checkbox",
+   "page": 2,
+   "x": 261.4,
+   "y": 375.5,
+   "size": 9.5
+  },
+  "assignNotReleased": {
+   "type": "checkbox",
+   "page": 2,
+   "x": 132.1,
+   "y": 364.3,
+   "size": 9.5
+  },
+  "assignNotAllowed": {
+   "type": "checkbox",
+   "page": 2,
+   "x": 437,
+   "y": 364.3,
+   "size": 9.5
+  },
+  "financingCash": {
+   "type": "checkbox",
+   "page": 2,
+   "x": 70.6,
+   "y": 311.4,
+   "size": 9.5
+  },
+  "financingLoan": {
+   "type": "checkbox",
+   "page": 2,
+   "x": 70.6,
+   "y": 294.8,
+   "size": 9.5
+  },
+  "loanApprovalDays": {
+   "type": "text",
+   "page": 2,
+   "x": 286,
+   "y": 296.5,
+   "maxWidth": 38,
+   "fontSize": 9,
+   "align": "center"
+  },
+  "inspectionDays": {
+   "type": "text",
+   "page": 5,
+   "x": 435,
+   "y": 244.5,
+   "maxWidth": 33,
+   "fontSize": 9,
+   "align": "center"
+  },
+  "additionalTerms": {
+   "type": "multiline",
+   "page": 12,
+   "fontSize": 9,
+   "lines": [
+    {
+     "x": 179,
+     "y": 728.2,
+     "maxWidth": 396
+    },
+    {
+     "x": 74,
+     "y": 716.6,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 705.1,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 693.6,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 682.1,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 670.6,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 659,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 647.5,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 636,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 624.5,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 613,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 601.4,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 590.1,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 578.4,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 567.2,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 555.4,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 544.2,
+     "maxWidth": 501
+    },
+    {
+     "x": 74,
+     "y": 532.3,
+     "maxWidth": 501
+    }
+   ]
+  },
+  "buyer1PrintedName": {
+   "type": "text",
+   "page": 13,
+   "x": 250,
+   "y": 413.2,
+   "maxWidth": 181,
+   "fontSize": 8,
+   "align": "right"
+  },
+  "buyer1Date": {
+   "type": "text",
+   "page": 13,
+   "x": 489,
+   "y": 413.2,
+   "maxWidth": 88,
+   "fontSize": 9
+  },
+  "buyer2PrintedName": {
+   "type": "text",
+   "page": 13,
+   "x": 250,
+   "y": 395.2,
+   "maxWidth": 181,
+   "fontSize": 8,
+   "align": "right"
+  },
+  "buyer2Date": {
+   "type": "text",
+   "page": 13,
+   "x": 489,
+   "y": 395.2,
+   "maxWidth": 88,
+   "fontSize": 9
+  },
+  "buyerNoticeAddress": {
+   "type": "multiline",
+   "page": 13,
+   "fontSize": 9,
+   "lines": [
+    {
+     "x": 74,
+     "y": 324.6,
+     "maxWidth": 237
+    },
+    {
+     "x": 74,
+     "y": 313.6,
+     "maxWidth": 237
+    },
+    {
+     "x": 74,
+     "y": 302.6,
+     "maxWidth": 237
+    }
+   ]
+  },
+  "cooperatingSalesAssociate": {
+   "type": "text",
+   "page": 13,
+   "x": 74,
+   "y": 198.6,
+   "maxWidth": 237,
+   "fontSize": 9
+  },
+  "listingSalesAssociate": {
+   "type": "text",
+   "page": 13,
+   "x": 345,
+   "y": 198.6,
+   "maxWidth": 231,
+   "fontSize": 9
+  },
+  "cooperatingBroker": {
+   "type": "text",
+   "page": 13,
+   "x": 74,
+   "y": 169.8,
+   "maxWidth": 237,
+   "fontSize": 9
+  },
+  "listingBroker": {
+   "type": "text",
+   "page": 13,
+   "x": 345,
+   "y": 169.8,
+   "maxWidth": 231,
+   "fontSize": 9
+  }
+ }
+}

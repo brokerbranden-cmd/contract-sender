@@ -43,6 +43,10 @@ export async function PATCH(
       }),
       ...(body.propertyType != null && { propertyType: body.propertyType }),
       ...(body.notes !== undefined && { notes: body.notes }),
+      ...(body.county !== undefined && { county: body.county || null }),
+      ...(body.parcelId !== undefined && { parcelId: body.parcelId || null }),
+      ...(body.legalDescription !== undefined && { legalDescription: body.legalDescription || null }),
+      ...(body.sellerName !== undefined && { sellerName: body.sellerName || null }),
     },
   });
   return NextResponse.json(property);

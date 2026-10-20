@@ -43,3 +43,8 @@ prisma/dev.db-journal
 prisma/smoke-test.db*
 prisma/*.db
 prisma/*.db-journal
+
+# Licensed FAR/BAR contract forms — never commit (member-licensed copies)
+forms/*.pdf
+forms/**/*.pdf
+farbar-sample.pdf

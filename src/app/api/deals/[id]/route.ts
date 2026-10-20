@@ -55,6 +55,9 @@ export async function PATCH(
       ...(body.notes !== undefined && { notes: body.notes }),
       ...(body.propertyId != null && { propertyId: body.propertyId }),
       ...(body.agentId !== undefined && { agentId: body.agentId || null }),
+      ...(body.contractType !== undefined && {
+        contractType: ["auto", "custom", "farbar"].includes(body.contractType) ? body.contractType : null,
+      }),
     },
     include: { property: true, agent: true },
   });

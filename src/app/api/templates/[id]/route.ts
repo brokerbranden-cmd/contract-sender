@@ -27,6 +27,7 @@ export async function PATCH(
       ...(body.description !== undefined && { description: body.description }),
       ...(body.body != null && { body: body.body }),
       ...(body.isDefault !== undefined && { isDefault: !!body.isDefault }),
+      ...(["auto", "custom", "farbar"].includes(body.contractType) && { contractType: body.contractType }),
     },
   });
   return NextResponse.json(template);

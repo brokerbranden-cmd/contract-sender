@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save } from "lucide-react";
+import { Select } from "@/components/ui/select";
+import { CONTRACT_TYPE_OPTIONS, FarBarMissingNotice, useFarBarStatus } from "@/components/contract-type";
 
 type Settings = {
   buyerName: string;
@@ -26,12 +28,28 @@ type Settings = {
   defaultOfferPct: number;
   emailSubjectTpl: string;
   emailBodyTpl: string;
+  defaultContractType: string;
+  farbarFormPath: string;
+  escrowAgentName: string;
+  escrowAgentAddress: string;
+  escrowAgentPhone: string;
+  escrowAgentEmail: string;
+  escrowAgentFax: string;
+  depositDays: number;
+  acceptanceDays: number;
+  assignability: string;
+  cooperatingSalesAssociate: string;
+  cooperatingBroker: string;
+  farbarAdditionalTerms: string;
 };
+
+type StrKey = { [K in keyof Settings]: Settings[K] extends string ? K : never }[keyof Settings];
 
 export default function SettingsPage() {
   const [form, setForm] = useState<Settings | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const farbar = useFarBarStatus();
 
   useEffect(() => {
     fetch("/api/settings")
@@ -179,6 +197,74 @@ export default function SettingsPage() {
                 }
               />
             </div>
+          </CardContent>
+        </Card>
+
+
+        <Card>
+          <CardHeader>
+            <CardTitle>FAR/BAR AS IS contract (official form)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <FarBarMissingNotice status={farbar} />
+            {farbar?.exists && (
+              <p className="text-sm text-emerald-700">
+                Form found at <code className="break-all">{farbar.path}</code>
+              </p>
+            )}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Default contract type</Label>
+                <Select value={form.defaultContractType} onChange={(e) => set("defaultContractType", e.target.value)}>
+                  {CONTRACT_TYPE_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <Label>Form PDF path (blank = forms/farbar-asis.pdf)</Label>
+                <Input value={form.farbarFormPath} placeholder="forms/farbar-asis.pdf" onChange={(e) => set("farbarFormPath", e.target.value)} />
+              </div>
+              {([
+                ["escrowAgentName", "Escrow agent name"],
+                ["escrowAgentAddress", "Escrow agent address"],
+                ["escrowAgentPhone", "Escrow agent phone"],
+                ["escrowAgentEmail", "Escrow agent email"],
+                ["escrowAgentFax", "Escrow agent fax"],
+                ["cooperatingSalesAssociate", "Cooperating sales associate"],
+                ["cooperatingBroker", "Cooperating broker (brokerage)"],
+              ] as [StrKey, string][]).map(([k, label]) => (
+                <div key={k}>
+                  <Label>{label}</Label>
+                  <Input value={form[k] as string} onChange={(e) => set(k, e.target.value)} />
+                </div>
+              ))}
+              <div>
+                <Label>Initial deposit due within (days)</Label>
+                <Input type="number" min={0} value={form.depositDays} onChange={(e) => set("depositDays", Number(e.target.value))} />
+              </div>
+              <div>
+                <Label>Offer acceptance deadline (days from today, 0 = blank)</Label>
+                <Input type="number" min={0} value={form.acceptanceDays} onChange={(e) => set("acceptanceDays", Number(e.target.value))} />
+              </div>
+              <div>
+                <Label>Assignability (paragraph 7)</Label>
+                <Select value={form.assignability} onChange={(e) => set("assignability", e.target.value)}>
+                  <option value="assign_released">May assign and be released</option>
+                  <option value="assign_not_released">May assign but not be released</option>
+                  <option value="no_assign">May not assign</option>
+                  <option value="">Leave blank</option>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Additional terms (paragraph 20)</Label>
+              <Textarea className="min-h-[100px]" value={form.farbarAdditionalTerms} onChange={(e) => set("farbarAdditionalTerms", e.target.value)} />
+            </div>
+            <p className="text-xs text-slate-500">
+              Buyer (paragraph 1) uses Entity; buyer&apos;s notice address uses the Buyer identity address. Seller, Tax ID and legal
+              description come from the property (edit on the deal page). Initials and signatures are always left blank.
+            </p>
           </CardContent>
         </Card>
 

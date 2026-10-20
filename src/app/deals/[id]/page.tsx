@@ -24,6 +24,7 @@ import {
   Save,
   ExternalLink,
 } from "lucide-react";
+import { CONTRACT_TYPE_OPTIONS, FarBarMissingNotice, useFarBarStatus } from "@/components/contract-type";
 
 type Deal = {
   id: string;
@@ -36,8 +37,13 @@ type Deal = {
   financingType: string | null;
   contingencies: string | null;
   notes: string | null;
+  contractType: string | null;
   property: {
     id: string;
+    county: string | null;
+    parcelId: string | null;
+    legalDescription: string | null;
+    sellerName: string | null;
     address: string;
     city: string;
     state: string;
@@ -79,6 +85,9 @@ export default function DealDetailPage() {
   const [deal, setDeal] = useState<Deal | null>(null);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templateId, setTemplateId] = useState("");
+  const farbar = useFarBarStatus();
+  const [contractType, setContractType] = useState("auto");
+  const [farbarForm, setFarbarForm] = useState({ sellerName: "", county: "", parcelId: "", legalDescription: "" });
   const [busy, setBusy] = useState(false);
   const [emailPreview, setEmailPreview] = useState<{
     to: string;
@@ -107,6 +116,13 @@ export default function DealDetailPage() {
     setTemplates(t);
     const def = t.find((x: Template) => x.isDefault) || t[0];
     if (def) setTemplateId(def.id);
+    setContractType(d.contractType ?? "auto");
+    setFarbarForm({
+      sellerName: d.property?.sellerName ?? "",
+      county: d.property?.county ?? "",
+      parcelId: d.property?.parcelId ?? "",
+      legalDescription: d.property?.legalDescription ?? "",
+    });
     setForm({
       offerPrice: d.offerPrice?.toString() ?? "",
       earnestMoney: d.earnestMoney?.toString() ?? "",
@@ -162,16 +178,27 @@ export default function DealDetailPage() {
         financingType: form.financingType,
         contingencies: form.contingencies,
         notes: form.notes,
+        contractType,
       }),
     });
+    if (deal?.property?.id) {
+      await fetch(`/api/properties/${deal.property.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(farbarForm),
+      });
+    }
     const res = await fetch("/api/contracts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dealId: id, templateId }),
+      body: JSON.stringify({ dealId: id, templateId, contractType }),
     });
     setBusy(false);
     if (res.ok) await load();
-    else alert("Failed to generate PDF");
+    else {
+      const err = await res.json().catch(() => ({}));
+      alert(`Failed to generate PDF${err.error ? `: ${err.error}` : ""}`);
+    }
   }
 
   async function markSent(contractId: string) {
@@ -342,11 +369,44 @@ export default function DealDetailPage() {
                     ))}
                   </Select>
                 </div>
+                <div className="min-w-[200px] flex-1">
+                  <Label>Contract type</Label>
+                  <Select value={contractType} onChange={(e) => setContractType(e.target.value)}>
+                    {CONTRACT_TYPE_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </Select>
+                </div>
                 <Button onClick={generatePdf} disabled={busy || !templateId}>
                   <FileText className="h-4 w-4" />
                   {busy ? "Working…" : "Generate PDF"}
                 </Button>
               </div>
+
+              <FarBarMissingNotice status={farbar} />
+              {contractType !== "custom" && farbar?.exists && (
+                <div className="grid gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
+                  <div className="text-xs font-medium text-slate-500 sm:col-span-2">
+                    FAR/BAR form fields (saved to the property; blank = left blank on the form)
+                  </div>
+                  <div>
+                    <Label>Seller name(s)</Label>
+                    <Input value={farbarForm.sellerName} onChange={(e) => setFarbarForm({ ...farbarForm, sellerName: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>County</Label>
+                    <Input value={farbarForm.county} onChange={(e) => setFarbarForm({ ...farbarForm, county: e.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>Property Tax ID / Parcel #</Label>
+                    <Input value={farbarForm.parcelId} onChange={(e) => setFarbarForm({ ...farbarForm, parcelId: e.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>Legal description</Label>
+                    <Textarea value={farbarForm.legalDescription} onChange={(e) => setFarbarForm({ ...farbarForm, legalDescription: e.target.value })} />
+                  </div>
+                </div>
+              )}
 
               {latest && (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">

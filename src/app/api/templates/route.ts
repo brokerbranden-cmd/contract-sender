@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
       description: body.description || null,
       body: body.body,
       isDefault: !!body.isDefault,
+      ...(["auto", "custom", "farbar"].includes(body.contractType) && { contractType: body.contractType }),
     },
   });
   return NextResponse.json(template, { status: 201 });

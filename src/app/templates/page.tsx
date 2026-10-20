@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save } from "lucide-react";
+import { Select } from "@/components/ui/select";
+import { CONTRACT_TYPE_OPTIONS, FarBarMissingNotice, useFarBarStatus } from "@/components/contract-type";
 
 type Template = {
   id: string;
@@ -15,12 +17,14 @@ type Template = {
   description: string | null;
   body: string;
   isDefault: boolean;
+  contractType: string;
 };
 
 export default function TemplatesPage() {
   const [items, setItems] = useState<Template[]>([]);
   const [selected, setSelected] = useState<Template | null>(null);
   const [saving, setSaving] = useState(false);
+  const farbar = useFarBarStatus();
 
   const load = async () => {
     const t = await fetch("/api/templates").then((r) => r.json());
@@ -61,6 +65,8 @@ export default function TemplatesPage() {
           for merge fields.
         </p>
       </div>
+
+      <FarBarMissingNotice status={farbar} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card>
@@ -121,6 +127,20 @@ export default function TemplatesPage() {
                     setSelected({ ...selected, description: e.target.value })
                   }
                 />
+              </div>
+              <div>
+                <Label>Contract type</Label>
+                <Select
+                  value={selected.contractType ?? "auto"}
+                  onChange={(e) => setSelected({ ...selected, contractType: e.target.value })}
+                >
+                  {CONTRACT_TYPE_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </Select>
+                <p className="mt-1 text-xs text-slate-500">
+                  FAR/BAR fills the official FloridaRealtors/FloridaBar-ASIS-7x form; the body below is only used for the custom contract.
+                </p>
               </div>
               <div>
                 <Label>Body</Label>

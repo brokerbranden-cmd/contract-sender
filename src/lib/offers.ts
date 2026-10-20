@@ -1,7 +1,7 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import path from "path";
 import { mkdir, writeFile } from "fs/promises";
-import { buildContractVars, generateContractPdf } from "./pdf";
+import { generateOfferPdf } from "./contract-gen";
 import { interpolate } from "./utils";
 import { buildEmailVars } from "./offer-utils";
 import { getContractsDir } from "./paths";
@@ -92,6 +92,8 @@ export type BulkOfferParams = {
   closingDays?: number | null;
   inspectionDays?: number | null;
   allowDuplicates?: boolean;
+  /** "auto" | "custom" | "farbar"; omitted = template/settings default */
+  contractType?: string | null;
   items: BulkOfferItem[];
 };
 
@@ -195,13 +197,16 @@ export async function createBulkOffers(
         notes: deal.notes,
       };
 
-      const contractVars = buildContractVars({
+      const gen = await generateOfferPdf({
         settings,
-        deal: dealTerms,
+        template,
+        deal: { ...dealTerms, contractType: deal.contractType },
         property,
         agent,
+        contractType: params.contractType,
       });
-      const pdfBytes = await generateContractPdf(template.body, contractVars);
+      const contractVars = gen.vars;
+      const pdfBytes = gen.bytes;
       const filename = `contract-${deal.id}-${Date.now()}-${Math.floor(Math.random() * 1000)}.pdf`;
       await writeFile(path.join(dir, filename), pdfBytes);
       const pdfPath = `/contracts/${filename}`;
@@ -257,7 +262,7 @@ export async function createBulkOffers(
         data: {
           dealId: deal.id,
           type: "contract_generated",
-          message: `Bulk offer drafted at $${offerPrice.toLocaleString("en-US")} (template "${template.name}"). Queued in Outbox.`,
+          message: `Bulk offer drafted at $${offerPrice.toLocaleString("en-US")} (${gen.contractType === "farbar" ? "FAR/BAR AS IS form" : `template "${template.name}"`}). Queued in Outbox.`,
           meta: JSON.stringify({ contractId: contract.id, outboxId: outbox.id, pdfPath }),
         },
       });

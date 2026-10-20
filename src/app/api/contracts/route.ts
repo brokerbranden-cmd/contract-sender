@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { buildContractVars, generateContractPdf } from "@/lib/pdf";
+import { generateOfferPdf } from "@/lib/contract-gen";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -28,17 +28,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Settings missing" }, { status: 500 });
   }
 
-  const vars = buildContractVars({
-    settings,
-    deal,
-    property: deal.property,
-    agent: deal.agent,
-  });
-
-  // Allow override fields from request
-  if (body.overrides) Object.assign(vars, body.overrides);
-
-  const pdfBytes = await generateContractPdf(template.body, vars);
+  let gen;
+  try {
+    gen = await generateOfferPdf({
+      settings,
+      template,
+      deal,
+      property: deal.property,
+      agent: deal.agent,
+      contractType: body.contractType ?? null,
+      overrides: body.overrides,
+    });
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 400 });
+  }
+  const vars = gen.vars;
+  const pdfBytes = gen.bytes;
   const dir = path.join(process.cwd(), "public", "contracts");
   await mkdir(dir, { recursive: true });
   const filename = `contract-${deal.id}-${Date.now()}.pdf`;
@@ -67,7 +72,7 @@ export async function POST(req: NextRequest) {
     data: {
       dealId: deal.id,
       type: "contract_generated",
-      message: `Contract PDF generated from template "${template.name}"`,
+      message: gen.contractType === "farbar" ? "Contract PDF generated on the FAR/BAR AS IS form" : `Contract PDF generated from template "${template.name}"`,
       meta: JSON.stringify({ contractId: contract.id, pdfPath }),
     },
   });

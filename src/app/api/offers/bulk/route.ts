@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST {
- *   templateId?, earnestMoney?, closingDays?, inspectionDays?, allowDuplicates?,
+ *   templateId?, contractType? (auto|custom|farbar), earnestMoney?, closingDays?, inspectionDays?, allowDuplicates?,
  *   items: [{ propertyId, offerPrice, subject?, body? }]
  * }
  * Generates a PDF per listing, moves deals to offer_drafted and queues the email in the Outbox.
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       closingDays: n(body.closingDays),
       inspectionDays: n(body.inspectionDays),
       allowDuplicates: !!body.allowDuplicates,
+      contractType: ["auto", "custom", "farbar"].includes(body.contractType) ? body.contractType : null,
       items: body.items.map((i: Record<string, unknown>) => ({
         propertyId: String(i.propertyId),
         offerPrice: Number(i.offerPrice),

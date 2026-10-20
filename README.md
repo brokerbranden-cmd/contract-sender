@@ -152,6 +152,28 @@ npm run dev
 
 (`npm run dev` also runs `npx prisma db push` automatically via `predev`.) Do **not** run `npm run setup` / `npm run db:seed` on a DB you want to keep — the seed wipes and re-creates sample data.
 
+## FAR/BAR AS IS contract (official form)
+
+Offers can be generated on the official **Florida Realtors/Florida Bar "AS IS" Residential Contract For Sale And Purchase** (FloridaRealtors/FloridaBar-ASIS-7x, Rev 2/26) instead of the built-in custom AS-IS contract.
+
+The form is licensed to Florida Realtors members, so **it is not in this repo**. Use your own copy:
+
+1. In Form Simplicity, print/download a blank "AS IS" contract to PDF (13 pages, letter size).
+2. Save it as **`forms\farbar-asis.pdf`** inside the project folder (the `forms/` folder exists; `forms/*.pdf` is gitignored and never committed).
+   - Or set a different path in **Settings → FAR/BAR AS IS contract → Form PDF path**, or the env var `FARBAR_ASIS_PATH`.
+3. Restart `npm run dev`. Settings and Templates show a yellow warning while the file is missing (offers then fall back to the custom contract).
+
+How it works: the form is flattened (no fields), so `src/lib/farbar/fill.ts` (`fillFarBarAsIs(deal, settings)`) overlays Helvetica text at fixed coordinates stored in `src/lib/farbar/asis-field-map.json` (coordinates only, no form content), auto-shrinking to fit each blank and drawing an X in checkboxes.
+
+**Filled automatically:** Seller (from the property's *Seller name*, if entered), Buyer (Settings → Entity), street/city/zip, county, Tax ID, legal description, purchase price, initial deposit, "(ii) made within __ days" checkbox + days (Settings, default 3), escrow agent name/address/phone/email/fax (Settings), additional deposit (if any), loan amount (financed deals), balance to close (price − deposits − loan), acceptance deadline (today + Settings days), closing date (today + closing days), paragraph 7 assignability (Settings), paragraph 8(a) cash / 8(b) financing checkbox, paragraph 12 inspection period days, paragraph 20 additional terms (Settings), buyer printed name + date on the signature page, buyer notice address, cooperating sales associate/broker (Settings), listing sales associate/broker (listing agent / office).
+**Always left blank:** all Buyer/Seller initials, signatures, seller notice address, personal property included/excluded, "Other" (2d), loan details in 8(b), title/closing-cost options and all other optional paragraphs, riders/addenda checkboxes, counter-offer section.
+
+Choosing the contract type: Settings → *Default contract type*, per template (Templates → *Contract type*), per deal (deal page → *Contract type*) and in the bulk offer builder. **Auto** = FAR/BAR when the form file exists, otherwise custom. Seller name, county, Tax ID and legal description can be edited on the deal page; MLS imports also map *Tax ID / Parcel / Folio* and *Legal Description* columns.
+
+`npm run farbar:sample -- out.pdf` writes a filled example (uses `forms/farbar-asis.pdf` or `FARBAR_ASIS_PATH`).
+
+If a future form revision moves the blanks, re-measure and update `asis-field-map.json` (PDF points, origin bottom-left; text `y` = baseline).
+
 ## Email / Resend
 
 The send endpoint (`POST /api/contracts/[id]/send`) marks the contract sent, logs activity, and returns a mailto + email preview. To wire Resend later, see the comment in that route:
@@ -173,6 +195,7 @@ The send endpoint (`POST /api/contracts/[id]/send`) marks the contract sent, log
 | `npm run build` | Production build |
 | `npm test` | Unit tests (CSV parser, header detection, offer rounding, placeholders, batch parsing) |
 | `npm run smoke` | End-to-end smoke test on a throwaway DB: imports the sample CSV, filters, creates offers + PDFs, exports/marks a batch, checks the cap and duplicate guard |
+| `npm run farbar:sample` | Fill the FAR/BAR AS IS form with example data (needs `forms/farbar-asis.pdf`) |
 | `npm run test:all` | `npm test` + `npm run smoke` |
 
 ## Project layout

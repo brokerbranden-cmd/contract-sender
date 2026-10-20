@@ -54,6 +54,19 @@ function sanitize(body: Record<string, unknown>) {
     ...(body.emailSubjectTpl != null && {
       emailSubjectTpl: String(body.emailSubjectTpl),
     }),
+    ...(body.defaultContractType != null && { defaultContractType: String(body.defaultContractType) }),
+    ...(body.farbarFormPath != null && { farbarFormPath: String(body.farbarFormPath) }),
+    ...(body.escrowAgentName != null && { escrowAgentName: String(body.escrowAgentName) }),
+    ...(body.escrowAgentAddress != null && { escrowAgentAddress: String(body.escrowAgentAddress) }),
+    ...(body.escrowAgentPhone != null && { escrowAgentPhone: String(body.escrowAgentPhone) }),
+    ...(body.escrowAgentEmail != null && { escrowAgentEmail: String(body.escrowAgentEmail) }),
+    ...(body.escrowAgentFax != null && { escrowAgentFax: String(body.escrowAgentFax) }),
+    ...(body.assignability != null && { assignability: String(body.assignability) }),
+    ...(body.cooperatingSalesAssociate != null && { cooperatingSalesAssociate: String(body.cooperatingSalesAssociate) }),
+    ...(body.cooperatingBroker != null && { cooperatingBroker: String(body.cooperatingBroker) }),
+    ...(body.farbarAdditionalTerms != null && { farbarAdditionalTerms: String(body.farbarAdditionalTerms) }),
+    ...(body.depositDays !== undefined && { depositDays: Math.max(0, Math.round(num(body.depositDays) ?? 3)) }),
+    ...(body.acceptanceDays !== undefined && { acceptanceDays: Math.max(0, Math.round(num(body.acceptanceDays) ?? 3)) }),
     ...(body.emailBodyTpl != null && { emailBodyTpl: String(body.emailBodyTpl) }),
   };
 }
