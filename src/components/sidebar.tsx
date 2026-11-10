@@ -12,13 +12,15 @@ import {
   Upload,
   Search,
   Send,
+  ListChecks,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/deals", label: "Deals", icon: Handshake },
-  { href: "/listings", label: "Listings", icon: Search },
+  { href: "/search", label: "Property Search", icon: Search },
+  { href: "/listings", label: "Listings", icon: ListChecks },
   { href: "/import", label: "MLS Import", icon: Upload },
   { href: "/outbox", label: "Outbox", icon: Send },
   { href: "/properties", label: "Properties", icon: Home },

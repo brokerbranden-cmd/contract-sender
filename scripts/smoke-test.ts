@@ -199,6 +199,88 @@ async function main() {
     const forcedMark = await markOutboxSent(prisma, leftover!.id, { enforceCap: true, force: true });
     assert.ok(forcedMark.ok, "force overrides the cap");
 
+    step("Public-records parcels: import fixture NAL/SDF -> search -> comps -> deal");
+    {
+      const { Readable } = await import("stream");
+      const { importCounty } = await import("../src/lib/parcels/importer");
+      const { countyBySlug } = await import("../src/lib/parcels/counties");
+      const { searchParcels, searchIds, exportRows, buildWhere } = await import("../src/lib/parcels/search");
+      const { parcelDetail } = await import("../src/lib/parcels/detail");
+      const { ensureDealForParcel } = await import("../src/lib/parcels/crm");
+      const header =
+        "CO_NO,PARCEL_ID,ASMNT_YR,DOR_UC,JV,AV_NSD,TV_NSD,JV_HMSTD,LND_VAL,LND_SQFOOT,ACT_YR_BLT,TOT_LVG_AREA,SALE_PRC1,SALE_YR1,SALE_MO1,QUAL_CD1,OWN_NAME,OWN_ADDR1,OWN_CITY,OWN_STATE,OWN_ZIPCD,S_LEGAL,PHY_ADDR1,PHY_CITY,PHY_ZIPCD,EXMPT_01";
+      const rows: string[] = [header];
+      for (let i = 1; i <= 30; i++) {
+        const sqft = 1500 + i * 20;
+        const absentee = i % 3 === 0;
+        rows.push(
+          [
+            23, `00000000${String(i).padStart(5, "0")}`, 2026, i === 30 ? "011" : "001", 300000 + i * 5000, 250000, 250000, i % 2 ? 300000 : 0, 100000, 6000, 1950 + i, sqft,
+            280000 + i * 3000, 2025, "06", "01", `OWNER ${i % 10} LLC`, absentee ? "PO BOX 9" : `${100 + i} NW 1 ST`, absentee ? "ATLANTA" : "MIAMI",
+            absentee ? "GA" : "FL", "33100", `TESTVILLE SEC ${i % 3} PB 1-2 LOT ${i}`, `${100 + i} NW 1 ST`, "Miami", "33125", i % 2 ? 25000 : 0,
+          ].join(","),
+        );
+      }
+      const sdf = "CO_NO,PARCEL_ID,SALE_YR,SALE_MO,SALE_PRC,QUAL_CD,OR_BOOK,OR_PAGE,VI_CD\n23,0000000000001,2021,03,200000,01,100,5,I\n";
+      const county = countyBySlug("miami-dade")!;
+      const imp = await importCounty({ prisma, county, nal: async () => Readable.from([rows.join("\n")]), sdf: async () => Readable.from([sdf]) });
+      assert.equal(imp.parcels, 30);
+      assert.equal(imp.sales, 1);
+      // re-import is idempotent (replaces the county)
+      const imp2 = await importCounty({ prisma, county, nal: async () => Readable.from([rows.join("\n")]) });
+      assert.equal(imp2.parcels, 30);
+      assert.equal(await prisma.parcel.count(), 30);
+
+      const all = await searchParcels(prisma, { criteria: [], pageSize: 50 });
+      assert.equal(all.total, 30);
+      const abs = await searchParcels(prisma, { criteria: [{ field: "absentee", op: "is", value: "true" }] });
+      assert.equal(abs.total, 10);
+      const sf = await searchParcels(prisma, {
+        criteria: [
+          { field: "propertyType", op: "in", value: "Single Family" },
+          { field: "justValue", op: "between", value: "400000", value2: "450000" },
+          { field: "ownerName", op: "contains", value: "owner 1" },
+        ],
+        sort: "market",
+        dir: "desc",
+      });
+      assert.ok(sf.total > 0 && sf.items.every((r) => Number(r.justValue) >= 400000 && Number(r.justValue) <= 450000));
+      assert.ok(sf.items.every((r, i, a) => i === 0 || Number(a[i - 1].justValue) >= Number(r.justValue)), "sorted desc");
+      const hs = await searchParcels(prisma, { criteria: [{ field: "homestead", op: "is", value: "false" }] });
+      assert.equal(hs.total, 15);
+      const none = await searchParcels(prisma, { criteria: [{ field: "city", op: "contains", value: "zzz" }] });
+      assert.equal(none.total, 0);
+      assert.equal((await searchIds(prisma, [], 7)).length, 7);
+      assert.equal((await exportRows(prisma, [{ field: "absentee", op: "is", value: "true" }], {})).length, 10);
+      assert.ok(buildWhere([{ field: "reo", op: "is", value: "true" }]).where.includes("isReo"));
+      await searchParcels(prisma, { criteria: [{ field: "onMls", op: "is", value: "true" }, { field: "inCrm", op: "is", value: "false" }, { field: "reo", op: "is", value: "false" }] });
+
+      const subject = await prisma.parcel.findFirstOrThrow({ where: { parcelId: "0000000000010" } });
+      await prisma.parcel.updateMany({ data: { lat: 25.77, lon: -80.2 } }); // give every fixture parcel a location
+      const det = await parcelDetail(prisma, subject.id);
+      assert.ok(det && det.comps.length >= 3 && det.comps.length <= 12, "comps found");
+      assert.equal(det!.basis, "distance");
+      assert.ok(det!.compsValueEstimate && det!.compsValueEstimate > 100000);
+      assert.ok(det!.comps.every((c) => c.id !== subject.id));
+      const first = await prisma.parcel.findFirstOrThrow({ where: { parcelId: "0000000000001" } });
+      const d1 = await parcelDetail(prisma, first.id);
+      assert.ok(d1!.sales.some((x) => x.price === 200000 && x.date === "2021-03-01"), "SDF sale in history");
+
+      // Make offer / Add to follow-up -> CRM property + deal, idempotent
+      const r1 = await ensureDealForParcel(prisma, subject);
+      assert.equal(r1.created, true);
+      assert.equal(r1.property.parcelId, subject.parcelId);
+      assert.equal(r1.property.source, "public-records");
+      assert.ok(r1.deal.offerPrice && r1.deal.offerPrice > 0);
+      const r2 = await ensureDealForParcel(prisma, subject);
+      assert.equal(r2.created, false);
+      assert.equal(r2.deal.id, r1.deal.id);
+      const inCrm = await searchParcels(prisma, { criteria: [{ field: "inCrm", op: "is", value: "true" }] });
+      assert.equal(inCrm.total, 1);
+      assert.equal(inCrm.items[0].dealId, r1.deal.id);
+      console.log("  parcels:", { imported: imp.parcels, absentee: abs.total, comps: det!.comps.length });
+    }
+
     console.log("\n✅ Smoke test passed");
   } finally {
     await prisma.$disconnect();

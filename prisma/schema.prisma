@@ -198,3 +198,107 @@ model OutboxItem {
   @@index([dealId])
   @@index([sentAt])
 }
+
+// ---------------------------------------------------------------------------
+// Public-records parcel data (Florida Dept. of Revenue NAL/SDF tax-roll files,
+// loaded by `npm run data:import`). One row per parcel/folio. Safe to wipe and
+// reload: nothing else references it except Property.parcelId (a soft link).
+// ---------------------------------------------------------------------------
+model Parcel {
+  id             String   @id // "<coNo>:<parcelId>", e.g. "23:0102030501020"
+  county         String // slug: miami-dade | broward | palm-beach | monroe
+  coNo           Int
+  parcelId       String // folio / parcel number exactly as published
+  situsAddress   String   @default("")
+  situsCity      String   @default("")
+  situsZip       String   @default("")
+  ownerName      String   @default("")
+  ownerAddr1     String   @default("")
+  ownerAddr2     String   @default("")
+  ownerCity      String   @default("")
+  ownerState     String   @default("")
+  ownerZip       String   @default("")
+  ownerCountry   String   @default("")
+  absentee       Boolean  @default(false) // mailing address differs from situs
+  outOfState     Boolean  @default(false) // mailing state is not FL
+  homestead      Boolean  @default(false)
+  useCode        String   @default("") // 3-digit DOR use code
+  propertyType   String   @default("") // derived from useCode
+  units          Int?
+  buildings      Int?
+  landValue      Int?
+  buildingValue  Int?
+  justValue      Int?
+  assessedValue  Int?
+  taxableValue   Int?
+  livingArea     Int?
+  grossArea      Int?
+  lotSqft        Int?
+  yearBuilt      Int?
+  effYearBuilt   Int?
+  beds           Int?
+  baths          Float?
+  pool           Boolean?
+  stories        Int?
+  lastSaleDate   String? // YYYY-MM-DD (day is 01 when only year/month known)
+  lastSalePrice  Int?
+  lastSaleQual   Boolean? // qualified (arm's-length) sale per the PA
+  prevSaleDate   String?
+  prevSalePrice  Int?
+  legal          String   @default("")
+  subdivision    String   @default("")
+  neighborhood   String   @default("")
+  marketArea     String   @default("")
+  township       String   @default("")
+  range          String   @default("")
+  section        String   @default("")
+  censusBlock    String   @default("")
+  lat            Float?
+  lon            Float?
+  ppsf           Float? // just value / living area
+  estEquity      Int? // estimate, see src/lib/parcel-calc.ts
+  estEquityPct   Float?
+  assessYear     Int?
+  importedAt     DateTime @default(now())
+
+  @@unique([county, parcelId])
+  @@index([county])
+  @@index([county, situsZip])
+  @@index([county, situsCity])
+  @@index([county, propertyType])
+  @@index([situsAddress])
+  @@index([ownerName])
+  @@index([lastSaleDate])
+  @@index([justValue])
+  @@index([parcelId])
+}
+
+// Recorded sales from the FDOR SDF (sales data file) plus the two most recent
+// sales carried on the NAL roll. Joined to Parcel by (county, parcelId).
+model ParcelSale {
+  id        String  @id @default(cuid())
+  county    String
+  parcelId  String
+  saleDate  String // YYYY-MM-DD
+  price     Int
+  book      String  @default("")
+  page      String  @default("")
+  cfn       String  @default("")
+  qualCode  String  @default("")
+  qualified Boolean @default(false)
+  vacantImp String  @default("") // V vacant / I improved
+  source    String  @default("SDF")
+
+  @@index([county, parcelId])
+  @@index([saleDate])
+}
+
+model SavedSearch {
+  id        String   @id @default(cuid())
+  name      String
+  kind      String   @default("parcels")
+  criteria  String // JSON
+  columns   String? // JSON array of column keys
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

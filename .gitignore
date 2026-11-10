@@ -48,3 +48,8 @@ prisma/*.db-journal
 forms/*.pdf
 forms/**/*.pdf
 farbar-sample.pdf
+
+# Downloaded public-records data (large) — never commit
+data/
+prisma/*.db-*
+prisma/dev.db.*

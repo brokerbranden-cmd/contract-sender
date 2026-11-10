@@ -47,6 +47,8 @@ npm run db:seed
 | `/deals/new` | Create deal |
 | `/deals/[id]` | Offer terms, PDF, email, activity |
 | `/import` | **MLS import** — upload Matrix/Reifax CSV or XLSX, map columns, preview, commit |
+| `/search` | **Property Search (public records)** — Reifax-style filters over every parcel in Miami-Dade / Broward / Palm Beach / Monroe, saved searches, bulk → Follow Up / offers |
+| `/parcels/[id]` | **Parcel page** — Details, Owner, Sales History, Mortgage, Comparables, “Make offer” |
 | `/listings` | **Listings search** — filters, sortable table, bulk “Create offers” |
 | `/offers/bulk` | **Bulk offer builder** — template, offer %, per-row price/subject/body preview |
 | `/outbox` | **Outbox** — mailto, mark sent, export `outbox-batch.json`, mark batch sent |
@@ -152,6 +154,52 @@ npm run dev
 
 (`npm run dev` also runs `npx prisma db push` automatically via `predev`.) Do **not** run `npm run setup` / `npm run db:seed` on a DB you want to keep — the seed wipes and re-creates sample data.
 
+## Property Search (public records) — Reifax-style
+
+`/search` searches every property in the county tax rolls (not just MLS listings): owner, absentee/out-of-state owners, homestead, land/build/market/assessed/taxable values, last sale price & date, year built, living area, lot size, $/sqft, estimated equity, and more. Click an address for the parcel page (`/parcels/…`) with Details / Owner / Sales History / Mortgage / Comparables and a **Make offer** button that creates the CRM property + deal and drops you into the normal offer / FAR-BAR flow.
+
+### Where the data comes from (free)
+
+Florida Department of Revenue **tax-roll files** — the same files the county property appraisers certify each year. Public, no login, no fee:
+<https://floridarevenue.com/property/Pages/DataPortal_RequestAssessmentRollGISData.aspx> (files live under `…/dataportal/Documents/PTO Data Portal/Tax Roll Data Files/NAL|SDF/2026F/`).
+
+* **NAL** (Name-Address-Legal): parcel/folio, situs address, owner + mailing address, use code, values, areas, year built, last two sales, legal description.
+* **SDF** (Sales Data File): recorded sales (date, price, book/page, qualified or not) → Sales History tab.
+* Optional **enrichment** (also free): Miami-Dade Property Appraiser GIS → beds, baths, gross area, floors, lat/long and the last three sales with exact dates/prices/book-page. Broward (BCPA) and Palm Beach / Monroe (Florida Statewide Cadastral) → lat/long (used for “nearest” comparables).
+
+### Load the data
+
+```powershell
+npx prisma db push                                  # creates the Parcel tables (additive; keeps your data)
+npm run data:import -- --county miami-dade          # downloads ~60 MB, loads ~940k parcels (a few minutes)
+npm run data:import -- --county broward
+npm run data:import -- --county palm-beach
+npm run data:import -- --county monroe              # or:  --county all
+npm run data:enrich -- --county miami-dade          # recommended for Miami-Dade: beds / baths / lat-long / sale history (Miami-Dade ≈ 5 min; Broward/Palm Beach/Monroe lat-long ≈ 15–30 min each)
+```
+
+* Downloads are cached in `data/tax-roll/` (git-ignored). Re-running **replaces only that county’s parcels**; deals, listings, agents and offers are never touched.
+* Already downloaded the files yourself? `npm run data:import -- --county miami-dade --nal "C:\path\Dade 23 Final NAL 2026.zip" --sdf "C:\path\Dade 23 Final SDF 2026.zip"` (a `.zip` or the extracted `.csv`).
+* Other options: `--year 2026`, `--stage Preliminary`, `--refresh` (re-download), `--no-sales`, `--limit 5000` (quick test), `--enrich`.
+* The database grows by roughly 1 GB per million parcels (`prisma/dev.db`).
+
+### What is and isn’t available for free
+
+| Reifax feature | Here |
+|---|---|
+| Owner, mailing address, absentee / out-of-state, homestead | ✅ tax roll |
+| Land / build / market / assessed / taxable value, $/sqft | ✅ tax roll |
+| Last sale, prior sale, sales history, years since sale | ✅ **Miami-Dade**: last 3 sales with exact dates from the Property Appraiser (`data:enrich`). ⚠️ **Broward / Palm Beach / Monroe**: the free FDOR files only contain sales recorded in 2025-2026 (older history is by request from FDOR only), so most parcels show *no* sale, and “years since last sale” / equity can’t see older purchases |
+| Beds / baths / gross area / lat-long | ✅ Miami-Dade (enrich); lat-long for the other counties; beds/baths not published free for them |
+| Equity | ⚠️ **rough estimate only (upper bound when the last sale is unknown)** — assumes 80% LTV, 30-yr 6.5% loan from the last arm’s-length sale (free & clear if none in 30 yrs). No actual mortgage data |
+| Mortgage lender / amount / rate / liens | ❌ clerk records, not free in bulk — Mortgage tab links to the clerk’s site |
+| Foreclosure, tax delinquent, probate, deceased | ❌ shown as disabled “needs data” groups (REO / short-sale flags are wired to your imported MLS data) |
+| Pool, waterfront, permits | ❌ not in the tax roll |
+| Owner phone / email | ❌ needs skip tracing (paid) |
+| Comparables | ✅ recent qualified sales nearby (distance) or same ZIP, similar size/year, from the same dataset; active / distressed / rental / Airbnb comps need other feeds |
+
+The “S” column on results shows **MLS** when the address/folio matches a listing you imported, and **F** (links to the deal) when it is already in Follow Up.
+
 ## FAR/BAR AS IS contract (official form)
 
 Offers can be generated on the official **Florida Realtors/Florida Bar "AS IS" Residential Contract For Sale And Purchase** (FloridaRealtors/FloridaBar-ASIS-7x, Rev 2/26) instead of the built-in custom AS-IS contract.
@@ -193,7 +241,9 @@ The send endpoint (`POST /api/contracts/[id]/send`) marks the contract sent, log
 | `npm run db:push` | Apply Prisma schema |
 | `npm run db:seed` | Re-seed sample data |
 | `npm run build` | Production build |
-| `npm test` | Unit tests (CSV parser, header detection, offer rounding, placeholders, batch parsing) |
+| `npm run data:import -- --county <miami-dade\|broward\|palm-beach\|monroe\|all>` | Download + load public-records parcels (see above) |
+| `npm run data:enrich -- --county <…>` | Add beds/baths/lat-long from free county GIS services |
+| `npm test` | Unit tests (CSV parser, header detection, offer rounding, placeholders, batch parsing, tax-roll parsing, search SQL) |
 | `npm run smoke` | End-to-end smoke test on a throwaway DB: imports the sample CSV, filters, creates offers + PDFs, exports/marks a batch, checks the cap and duplicate guard |
 | `npm run farbar:sample` | Fill the FAR/BAR AS IS form with example data (needs `forms/farbar-asis.pdf`) |
 | `npm run test:all` | `npm test` + `npm run smoke` |
@@ -204,6 +254,9 @@ The send endpoint (`POST /api/contracts/[id]/send`) marks the contract sent, log
 src/app/           # Pages + API routes
 src/components/    # Sidebar + UI primitives
 src/lib/           # prisma, utils, pdf
+src/lib/parcels/   # public-records import, search SQL, comps
+scripts/           # data-import.ts, data-enrich.ts, smoke test
+data/              # downloaded tax-roll files (git-ignored)
 prisma/            # schema + seed
 public/contracts/  # Generated PDFs
 ```

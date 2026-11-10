@@ -19,7 +19,7 @@ export default function RootLayout({
         <div className="flex min-h-screen">
           <Sidebar />
           <main className="flex-1 overflow-auto">
-            <div className="mx-auto max-w-7xl p-6">{children}</div>
+            <div className="mx-auto max-w-screen-2xl p-6">{children}</div>
           </main>
         </div>
       </body>

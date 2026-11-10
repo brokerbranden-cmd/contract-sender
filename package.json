@@ -14,10 +14,12 @@
     "setup": "npx prisma generate && npx prisma db push && npx tsx prisma/seed.ts",
     "predev": "npx prisma generate && npx tsx scripts/ensure-db.ts",
     "db:ensure": "tsx scripts/ensure-db.ts",
-    "test": "tsx --test tests/units.test.ts tests/farbar.test.ts",
+    "test": "tsx --test tests/units.test.ts tests/farbar.test.ts tests/parcels.test.ts",
     "smoke": "tsx scripts/smoke-test.ts",
     "farbar:sample": "tsx scripts/farbar-sample.ts",
-    "test:all": "npm run test && npm run smoke"
+    "test:all": "npm run test && npm run smoke",
+    "data:import": "tsx scripts/data-import.ts",
+    "data:enrich": "tsx scripts/data-enrich.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -30,12 +32,14 @@
     "react": "^18",
     "react-dom": "^18",
     "tailwind-merge": "^3.7.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "yauzl": "^3.4.0"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/yauzl": "^3.4.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
     "postcss": "^8",
